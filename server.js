@@ -7,11 +7,20 @@ var Block = require('./app/models/block')
 var config = require('./config');
 
 //App Config
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
 
 //Mongoose Config
 mongoose.connect(config.database)
+
+//Express Config
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+app.use(cookieParser());
+
+//Session Support
+//TODO
+app.use(session({ secret: 'secret' }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 //CORS Config
 app.use(function(req, res, next) {
@@ -29,11 +38,10 @@ app.get('/', function(req, res) {
 })
 
 var apiBlockRouter = require('./app/routes/block')(app, express)
+var apiAuthRouter = require('./app/routes/auth')(app, passport);
 
-// apiBlockRouter.get('/', function(req, res) {
-//   res.send({message: "Welcome to my API"})
-// })
 app.use('/api', apiBlockRouter);
+app.use('/auth', apiUserRouter);
 
 //Starting the Server
 app.listen(config.port);
